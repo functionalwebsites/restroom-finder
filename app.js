@@ -37,109 +37,121 @@ function render() {
   const root = $("results");
   root.replaceChildren();
   $("results-footer").hidden = !rows.length;
-  $("summary").textContent =
-    `${rows.length > settings.resultLimit ? `Nearest ${settings.resultLimit} of ` : ""}${rows.length} mapped ${rows.length === 1 ? "option" : "options"} within ${Number($("radius").value) / 1000} km`;
-  if (!rows.length) {
+  const visible = rows.slice(0, settings.resultLimit);
+  $("summary").textContent = visible.length
+    ? `${visible.length} closest mapped ${visible.length === 1 ? "option" : "options"} · within ${Number($("radius").value) / 1000} km`
+    : "No mapped options in this area.";
+  if (!visible.length) {
     const box = el("div", "empty");
     box.append(
       el("h3", "", "No mapped restrooms found here."),
       el(
         "p",
         "",
-        "Try a wider search radius. No results means no matching data—not necessarily no restrooms.",
+        "Try a wider search radius. The map may be missing local restrooms.",
       ),
     );
     root.append(box);
     return;
   }
-  rows.slice(0, settings.resultLimit).forEach((r, i) => {
+  const provider = $("maps-app").value;
+  const appName = provider === "apple" ? "Apple Maps" : "Google Maps";
+  visible.forEach((r, i) => {
     const card = el("article", "card");
-    card.append(el("div", "rank", String(i + 1).padStart(2, "0")));
+    card.append(el("div", "rank", String(i + 1)));
     const body = el("div", "card-body");
-    body.append(el("h3", "", r.name));
-    if (r.operator) body.append(el("p", "meta", r.operator));
+    body.append(
+      el(
+        "h3",
+        "",
+        r.name === "Unnamed restroom"
+          ? `Restroom ${i + 1} · ${r.direction.label.toLowerCase()}`
+          : r.name,
+      ),
+    );
+    const meters =
+      r.meters < 1000
+        ? Math.max(10, Math.round(r.meters / 10) * 10) + " m"
+        : (r.meters / 1000).toFixed(1) + " km";
+    const relative =
+      $("location-title").textContent === "Your current location"
+        ? "you"
+        : "search location";
+    body.append(
+      el(
+        "p",
+        "bearing",
+        `${r.direction.arrow} ${meters} · ${r.direction.uncertain ? "Too close for a reliable direction" : r.direction.label + " of " + relative}`,
+      ),
+    );
+    if (r.name === "Unnamed restroom")
+      body.append(el("p", "meta", "No name in the map data."));
+    const access =
+      r.access === "unknown"
+        ? "Public access not confirmed"
+        : r.access === "permissive"
+          ? "Permissive access"
+          : "Mapped public access";
+    body.append(
+      el(
+        "p",
+        r.access === "unknown" ? "access-note uncertain" : "access-note",
+        access + (r.fee === "yes" ? " · Fee required" : ""),
+      ),
+    );
+    const actions = el("div", "directions");
+    const route = link(
+      `Open in ${appName} ↗`,
+      directionsFor(r)[provider],
+      "",
+      false,
+    );
+    route.setAttribute(
+      "aria-label",
+      `Open restroom ${i + 1}, ${r.name}, in ${appName}`,
+    );
+    actions.append(route);
+    body.append(actions);
+    const details = el("details", "place-details");
+    details.append(el("summary", "", "Hours & details"));
+    details.append(
+      el(
+        "p",
+        "meta",
+        r.hours
+          ? "Listed hours: " + r.hours
+          : "Hours unknown. Availability is not verified.",
+      ),
+    );
     if (!r.standalone)
-      body.append(
+      details.append(
         el(
           "p",
           "meta",
-          "Restrooms mapped at this facility; exact entrance unknown.",
+          "Mapped at this facility; exact restroom entrance unknown.",
         ),
       );
-    const badges = el("div", "badges");
-    badges.append(
-      el(
-        "span",
-        "badge" + (r.access === "unknown" ? " unknown" : ""),
-        r.access === "unknown"
-          ? "Access not specified"
-          : r.access === "permissive"
-            ? "Permissive access"
-            : "Public access",
-      ),
-    );
-    badges.append(
-      el(
-        "span",
-        "badge",
-        r.fee === "no"
-          ? "No fee listed"
-          : r.fee === "yes"
-            ? "Fee required"
-            : "Fee unknown",
-      ),
-    );
+    if (r.operator) details.append(el("p", "meta", "Operator: " + r.operator));
     if (r.wheelchair !== "unknown")
-      badges.append(
-        el(
-          "span",
-          "badge",
-          r.wheelchair === "yes"
-            ? "Wheelchair accessible"
-            : r.wheelchair === "limited"
-              ? "Limited wheelchair access"
-              : r.wheelchair === "no"
-                ? "Not wheelchair accessible"
-                : "Wheelchair: " + r.wheelchair,
-        ),
-      );
+      details.append(el("p", "meta", "Wheelchair access: " + r.wheelchair));
     if (r.changing === "yes")
-      badges.append(el("span", "badge", "Changing table"));
-    body.append(
-      badges,
-      el(
-        "p",
-        "hours",
-        r.hours ? "Listed hours: " + r.hours : "Hours not listed",
-      ),
-    );
-    if (r.description) body.append(el("p", "meta", r.description));
-    const actions = el("div", "directions");
-    const directions = directionsFor(r);
-    actions.append(
-      link("Walk with Apple Maps ↗", directions.apple, "", false),
-      link("Walk with Google Maps ↗", directions.google, "", false),
-    );
-    body.append(
-      actions,
+      details.append(el("p", "meta", "Changing table listed"));
+    if (r.description) details.append(el("p", "meta", r.description));
+    details.append(
       link(
         "View or improve source ↗",
         "https://www.openstreetmap.org/" + r.id,
         "source-link",
       ),
     );
-    const d = el(
-      "div",
-      "distance",
-      r.meters < 1000
-        ? Math.max(10, Math.round(r.meters / 10) * 10) + " m"
-        : (r.meters / 1000).toFixed(1) + " km",
-    );
-    d.append(el("small", "", "straight line"));
-    card.append(body, d);
+    body.append(details);
+    card.append(body);
     root.append(card);
   });
 }
+$("maps-app").addEventListener("change", () => {
+  if (rows.length) render();
+});
 async function search(p, label) {
   if (busy) return { error: "A search is already running." };
   if (

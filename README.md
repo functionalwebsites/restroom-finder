@@ -1,5 +1,7 @@
 # Relief — public restroom finder
 
+Shows the three closest mapped restrooms with distance, a compass direction (relative to true north), and one button for the selected maps app. Names use mapped restroom names, street addresses, or nearby park/playground/garden context when available; otherwise the option number and direction distinguish unnamed facilities. Nearby labels do not imply a verified association.
+
 A small, mobile-friendly website that uses your current location to find nearby mapped restrooms, including park facilities. Plain HTML, CSS, and JavaScript: no build tools, account system, API keys, or backend to maintain.
 
 ## Publish on GitHub Pages
@@ -33,8 +35,8 @@ To undo an edit, restore the previous content from the file's GitHub history and
 
 ## Navigation links
 
-- **Walk with Apple Maps** uses Apple's HTTPS map link with the restroom's coordinates and walking mode.
-- **Walk with Google Maps** uses Google's universal HTTPS directions link with walking mode and requests navigation.
+- **Open in Apple Maps** uses Apple's HTTPS map link with the restroom's coordinates and walking mode.
+- **Open in Google Maps** uses Google's universal HTTPS directions link with walking mode and requests navigation.
 - These are real clickable links, not copied text. Compatible phones can open the installed navigation app. Browser settings, installed apps, and operating-system behavior determine the handoff; a browser route or route preview may appear instead. You may need to tap **Start** in the maps app.
 - The origin is intentionally omitted so the maps app determines your current position. This also means directions from an example or manually entered search still start from your actual location.
 

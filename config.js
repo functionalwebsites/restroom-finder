@@ -3,7 +3,7 @@
 export const settings = {
   searchRadiiMeters: [2000, 5000, 10000],
   defaultRadiusMeters: 5000, // Must also appear in searchRadiiMeters.
-  resultLimit: 20, // Closest results shown. KML export still includes all results.
+  resultLimit: 3, // Closest results shown. KML export still includes all results.
   requestTimeoutMs: 32000,
   dataServices: [
     "https://overpass-api.de/api/interpreter",

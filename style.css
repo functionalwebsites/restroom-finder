@@ -542,3 +542,140 @@ footer .brand {
     display: none;
   }
 }
+
+/* Compact three-choice interface. Keep route choice ahead of extra details. */
+main {
+  max-width: 800px;
+  padding-top: 28px;
+}
+header {
+  height: 76px;
+}
+.intro {
+  padding-bottom: 24px;
+}
+h1 {
+  font-size: clamp(28px, 5vw, 36px);
+  letter-spacing: -1.2px;
+  margin: 10px 0;
+}
+.intro > p {
+  position: static;
+  font-size: 16px;
+}
+.header-note {
+  display: none;
+}
+.location-panel {
+  padding: 22px;
+}
+.toolbar {
+  padding: 22px 24px 16px;
+}
+.map-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 24px 20px;
+  color: #546970;
+  font-size: 14px;
+}
+.card {
+  grid-template-columns: 36px minmax(0, 1fr);
+  margin: 0 24px;
+  gap: 14px;
+  padding: 22px 0;
+}
+.rank {
+  display: grid;
+  width: 32px;
+  height: 32px;
+}
+.card h3 {
+  overflow-wrap: anywhere;
+  margin: 0 0 8px;
+}
+.bearing {
+  font-size: 17px;
+  font-weight: 600;
+  color: #214d43;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+.access-note {
+  font-size: 13px;
+  color: #546970;
+  margin: 8px 0;
+}
+.access-note.uncertain {
+  color: #876120;
+}
+.directions {
+  margin-top: 12px;
+}
+.directions a {
+  display: block;
+  text-align: center;
+  padding: 13px 18px;
+  background: #112c35;
+  color: white;
+  border: 0;
+  font-weight: 600;
+}
+.directions a:hover {
+  background: #24505a;
+}
+.place-details {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #64777c;
+}
+.place-details summary,
+.results-footer summary {
+  cursor: pointer;
+}
+.place-details p {
+  margin-top: 12px;
+}
+.results-footer details {
+  margin-top: 12px;
+}
+.about {
+  gap: 24px;
+}
+@media (max-width: 650px) {
+  main {
+    padding: 22px 14px 0;
+  }
+  .location-icon {
+    display: none;
+  }
+  .location-copy h2 {
+    font-size: 18px;
+  }
+  .location-copy {
+    flex-basis: 100%;
+  }
+  .card {
+    grid-template-columns: 28px minmax(0, 1fr);
+    margin: 0 18px;
+    gap: 12px;
+  }
+  .rank {
+    display: grid;
+    width: 28px;
+    height: 28px;
+  }
+  .directions a {
+    width: 100%;
+  }
+  .toolbar {
+    padding: 20px 18px 14px;
+  }
+  .map-choice {
+    margin: 0 18px 18px;
+  }
+  .bearing {
+    font-size: 16px;
+  }
+}

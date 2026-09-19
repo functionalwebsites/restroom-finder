@@ -26,11 +26,8 @@
     <main>
       <section class="intro">
         <div class="eyebrow">PUBLIC RESTROOM FINDER</div>
-        <h1>When you need to go,<br />know where to go.</h1>
-        <p>
-          Find the closest mapped restrooms.<br />Park bathrooms included. No
-          map required.
-        </p>
+        <h1>Find a restroom nearby.</h1>
+        <p>Your three closest options, with directions to get there.</p>
       </section>
       <section class="workspace" aria-label="Restroom finder">
         <div class="location-panel">
@@ -51,8 +48,8 @@
         </div>
         <div class="toolbar">
           <div>
-            <h2>Nearby restrooms</h2>
-            <p id="summary">Your nearest options will appear here.</p>
+            <h2>Your closest options</h2>
+            <p id="summary">Up to three restrooms. Pick one and go.</p>
           </div>
           <label class="radius-label"
             >Search within
@@ -63,15 +60,19 @@
             </select></label
           >
         </div>
+        <label class="map-choice"
+          >Open directions in
+          <select id="maps-app">
+            <option value="apple">Apple Maps</option>
+            <option value="google">Google Maps</option>
+          </select>
+        </label>
         <div id="status" role="status" aria-live="polite"></div>
         <div id="results">
           <div class="empty">
             <div class="restroom-symbol" aria-hidden="true">WC</div>
-            <h3>A short walk starts here.</h3>
-            <p>
-              Allow location access to find nearby facilities,<br />then open
-              walking directions in your favorite maps app.
-            </p>
+            <h3>Where are you starting?</h3>
+            <p>Use your location to see the three closest mapped restrooms.</p>
             <button class="text-button" id="example">
               Try a live search in Golden Gate Park
               <span aria-hidden="true">↗</span>
@@ -80,11 +81,16 @@
         </div>
         <div class="results-footer" id="results-footer" hidden>
           <span
-            >Sorted by straight-line distance. Walking routes may be
-            longer.</span
-          ><button id="export" class="text-button">
-            Download places (.kml) ↓
-          </button>
+            >Distance and compass direction are straight-line estimates from
+            your search location, relative to true north—not the direction your
+            phone faces. Walking routes may differ.</span
+          >
+          <details>
+            <summary>Export places</summary>
+            <button id="export" class="text-button">
+              Download all matches (.kml) ↓
+            </button>
+          </details>
         </div>
         <details class="manual">
           <summary>Location unavailable? Enter coordinates</summary>
@@ -130,7 +136,9 @@
           <p>
             Community data isn’t complete. Hours and access can change, and an
             “open now” status isn’t verified. A listed distance is to the mapped
-            point, which may not be the entrance.
+            point, which may not be the entrance. “Near” a named park or
+            landmark is nearby context, not a verified restroom name or
+            entrance.
           </p>
           <p>
             Download results for import into Google My Maps or other
