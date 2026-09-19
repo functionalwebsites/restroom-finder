@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#112c35" />
+    <meta
+      name="description"
+      content="Find nearby public restrooms, including park toilets, with walking directions and transparent access information."
+    />
+    <title>Relief — Restrooms near you</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23112c35'/%3E%3Ctext x='8' y='29' font-size='28' font-family='Arial' font-weight='bold' fill='%23c6f578'%3Er.%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="./">relief<span>↗</span></a
+      ><span class="header-note">A little closer to relief.</span
+      ><a href="#about">About the data <span aria-hidden="true">↗</span></a>
+    </header>
+    <main>
+      <section class="intro">
+        <div class="eyebrow">PUBLIC RESTROOM FINDER</div>
+        <h1>When you need to go,<br />know where to go.</h1>
+        <p>
+          Find the closest mapped restrooms.<br />Park bathrooms included. No
+          map required.
+        </p>
+      </section>
+      <section class="workspace" aria-label="Restroom finder">
+        <div class="location-panel">
+          <div class="location-icon" aria-hidden="true">◎</div>
+          <div class="location-copy">
+            <h2 id="location-title">Start where you are.</h2>
+            <p id="location-detail">
+              Use your location to find restrooms nearby.
+            </p>
+          </div>
+          <button class="primary" id="locate">
+            <span aria-hidden="true">⌖</span> Use my location
+          </button>
+        </div>
+        <div class="privacy">
+          Your coordinates are sent to the restroom data service for this
+          search. They aren’t saved by this app.
+        </div>
+        <div class="toolbar">
+          <div>
+            <h2>Nearby restrooms</h2>
+            <p id="summary">Your nearest options will appear here.</p>
+          </div>
+          <label class="radius-label"
+            >Search within
+            <select id="radius">
+              <option value="2000">2 km</option>
+              <option value="5000" selected>5 km</option>
+              <option value="10000">10 km</option>
+            </select></label
+          >
+        </div>
+        <div id="status" role="status" aria-live="polite"></div>
+        <div id="results">
+          <div class="empty">
+            <div class="restroom-symbol" aria-hidden="true">WC</div>
+            <h3>A short walk starts here.</h3>
+            <p>
+              Allow location access to find nearby facilities,<br />then open
+              walking directions in your favorite maps app.
+            </p>
+            <button class="text-button" id="example">
+              Try a live search in Golden Gate Park
+              <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </div>
+        <div class="results-footer" id="results-footer" hidden>
+          <span
+            >Sorted by straight-line distance. Walking routes may be
+            longer.</span
+          ><button id="export" class="text-button">
+            Download places (.kml) ↓
+          </button>
+        </div>
+        <details class="manual">
+          <summary>Location unavailable? Enter coordinates</summary>
+          <form id="coordinates">
+            <label
+              >Latitude<input
+                id="lat"
+                type="number"
+                min="-90"
+                max="90"
+                step="any"
+                placeholder="37.7694"
+                required /></label
+            ><label
+              >Longitude<input
+                id="lon"
+                type="number"
+                min="-180"
+                max="180"
+                step="any"
+                placeholder="-122.4862"
+                required /></label
+            ><button class="secondary" type="submit">Find restrooms</button>
+          </form>
+          <p>
+            Useful when location permission is blocked. Coordinates can be
+            copied from a maps app.
+          </p>
+        </details>
+      </section>
+      <section id="about" class="about">
+        <div>
+          <span class="eyebrow">A NOTE BEFORE YOU GO</span>
+          <h2>More places. Honest details.</h2>
+        </div>
+        <div>
+          <p>
+            We search OpenStreetMap for toilets and facilities with mapped
+            public restrooms, including parks. Private and customer-only
+            facilities are excluded. Missing access details are labeled, not
+            guessed.
+          </p>
+          <p>
+            Community data isn’t complete. Hours and access can change, and an
+            “open now” status isn’t verified. A listed distance is to the mapped
+            point, which may not be the entrance.
+          </p>
+          <p>
+            Download results for import into Google My Maps or other
+            KML-compatible apps. This does not add places to Apple Maps or
+            Google’s public listings.
+          </p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <a class="brand" href="./">relief<span>↗</span></a
+      ><span
+        >Data ©
+        <a
+          href="https://www.openstreetmap.org/copyright"
+          target="_blank"
+          rel="noopener"
+          >OpenStreetMap contributors</a
+        >
+        · ODbL</span
+      ><span>Find a restroom. Keep going.</span>
+    </footer>
+  </body>
+</html>
