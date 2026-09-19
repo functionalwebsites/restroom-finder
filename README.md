@@ -1,5 +1,7 @@
 # Relief — public restroom finder
 
+A full-screen results panel opens after Use my location. Switch List/Map, browse Next 3/Previous, or close the panel to change the search. Map view uses Leaflet and OpenStreetMap tiles, with numbered markers for the current page and a blue search-location marker. Only the area currently viewed is requested. The theme color is brand green (#c6f578).
+
 Shows the three closest mapped restrooms with distance, a compass direction (relative to true north), and one button for the selected maps app. Names use mapped restroom names, street addresses, or nearby park/playground/garden context when available; otherwise the option number and direction distinguish unnamed facilities. Nearby labels do not imply a verified association.
 
 A small, mobile-friendly website that uses your current location to find nearby mapped restrooms, including park facilities. Plain HTML, CSS, and JavaScript: no build tools, account system, API keys, or backend to maintain.
@@ -11,7 +13,7 @@ A small, mobile-friendly website that uses your current location to find nearby 
 3. Open **Settings → Pages**. Under **Build and deployment**, select **Deploy from a branch**.
 4. Select **main** and **/(root)**, then **Save**.
 5. Wait for GitHub's Pages deployment to finish. Open the HTTPS website address shown in Settings → Pages, usually `https://YOUR-USERNAME.github.io/restroom-finder/`.
-6. On your phone, tap **Use my location** and allow location access. Each result has clickable walking-directions links.
+6. On your phone, tap **Use my location** and allow location access. A full-screen panel opens with three results, a List/Map switch, and Previous/Next controls. Each result has a walking-directions link.
 
 All site paths are relative, so both repository sites and custom domains work. No GitHub Actions workflow or npm installation is needed. `.nojekyll` is included; if your file picker hides dotfiles, this plain site also works without it.
 
@@ -21,13 +23,13 @@ Official instructions: [Configure a GitHub Pages publishing source](https://docs
 
 Open the file in GitHub, click **Edit** (the pencil), make your change, and **Commit changes** to `main`. GitHub Pages republishes automatically. Check the repository's **Actions** tab if an update is still pending, and refresh your site after publication.
 
-| File         | What to edit                                                                                                  |
-| ------------ | ------------------------------------------------------------------------------------------------------------- |
-| `config.js`  | Search radius choices, default radius, number of visible results, data-service timeout and fallback endpoints |
-| `index.html` | Page title, headings, explanatory text, and page structure                                                    |
-| `style.css`  | Colors, fonts, spacing, and mobile layout                                                                     |
-| `app.js`     | Location requests, result cards, UI messages, and search interactions                                         |
-| `data.js`    | Public-access rules, distance sorting, navigation URLs, and KML export                                        |
+| File         | What to edit                                                                                                   |
+| ------------ | -------------------------------------------------------------------------------------------------------------- |
+| `config.js`  | Search radius choices, default radius, number of results per page, data-service timeout and fallback endpoints |
+| `index.html` | Page title, headings, explanatory text, and page structure                                                     |
+| `style.css`  | Colors, fonts, spacing, and mobile layout                                                                      |
+| `app.js`     | Location requests, result cards, UI messages, and search interactions                                          |
+| `data.js`    | Public-access rules, distance sorting, navigation URLs, and KML export                                         |
 
 Example: change `defaultRadiusMeters` to `2000` in `config.js` to start with a 2 km search. Keep that value in `searchRadiiMeters` too.
 

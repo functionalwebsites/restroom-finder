@@ -4,6 +4,12 @@ const $ = (id) => document.getElementById(id);
 let position = null,
   rows = [],
   busy = false;
+let page = 0,
+  view = "list",
+  map = null,
+  markers = null;
+const pageSize = settings.resultLimit;
+const visibleRows = () => rows.slice(page * pageSize, (page + 1) * pageSize);
 $("radius").replaceChildren(
   ...settings.searchRadiiMeters.map(
     (radius) => new Option(`${radius / 1000} km`, String(radius)),
@@ -18,6 +24,7 @@ function lock(on) {
   busy = on;
   for (const id of ["locate", "radius", "example"])
     if ($(id)) $(id).disabled = on;
+  updatePager();
   $("coordinates").querySelector("button").disabled = on;
 }
 const el = (tag, cls, text) => {
@@ -37,9 +44,11 @@ function render() {
   const root = $("results");
   root.replaceChildren();
   $("results-footer").hidden = !rows.length;
-  const visible = rows.slice(0, settings.resultLimit);
+  $("reopen").hidden = !rows.length;
+  const visible = visibleRows();
+  updatePager();
   $("summary").textContent = visible.length
-    ? `${visible.length} closest mapped ${visible.length === 1 ? "option" : "options"} · within ${Number($("radius").value) / 1000} km`
+    ? `${page * pageSize + 1}–${page * pageSize + visible.length} of ${rows.length} · nearest first`
     : "No mapped options in this area.";
   if (!visible.length) {
     const box = el("div", "empty");
@@ -58,14 +67,14 @@ function render() {
   const appName = provider === "apple" ? "Apple Maps" : "Google Maps";
   visible.forEach((r, i) => {
     const card = el("article", "card");
-    card.append(el("div", "rank", String(i + 1)));
+    card.append(el("div", "rank", String(page * pageSize + i + 1)));
     const body = el("div", "card-body");
     body.append(
       el(
         "h3",
         "",
         r.name === "Unnamed restroom"
-          ? `Restroom ${i + 1} · ${r.direction.label.toLowerCase()}`
+          ? `Restroom ${page * pageSize + i + 1} · ${r.direction.label.toLowerCase()}`
           : r.name,
       ),
     );
@@ -84,8 +93,7 @@ function render() {
         `${r.direction.arrow} ${meters} · ${r.direction.uncertain ? "Too close for a reliable direction" : r.direction.label + " of " + relative}`,
       ),
     );
-    if (r.name === "Unnamed restroom")
-      body.append(el("p", "meta", "No name in the map data."));
+
     const access =
       r.access === "unknown"
         ? "Public access not confirmed"
@@ -100,15 +108,10 @@ function render() {
       ),
     );
     const actions = el("div", "directions");
-    const route = link(
-      `Open in ${appName} ↗`,
-      directionsFor(r)[provider],
-      "",
-      false,
-    );
+    const route = link(`${appName} ↗`, directionsFor(r)[provider], "", false);
     route.setAttribute(
       "aria-label",
-      `Open restroom ${i + 1}, ${r.name}, in ${appName}`,
+      `Open restroom ${page * pageSize + i + 1}, ${r.name}, in ${appName}`,
     );
     actions.append(route);
     body.append(actions);
@@ -144,10 +147,21 @@ function render() {
         "source-link",
       ),
     );
-    body.append(details);
+    const more = el("button", "details-button", "Details");
+    more.addEventListener("click", () => {
+      $("place-title").textContent = r.name;
+      $("place-content").replaceChildren(
+        ...Array.from(details.children)
+          .slice(1)
+          .map((node) => node.cloneNode(true)),
+      );
+      $("place-dialog").showModal();
+    });
+    actions.append(more);
     card.append(body);
     root.append(card);
   });
+  if (view === "map") renderMap();
 }
 $("maps-app").addEventListener("change", () => {
   if (rows.length) render();
@@ -161,9 +175,13 @@ async function search(p, label) {
     Math.abs(p.lon) > 180
   )
     throw new Error("Enter valid latitude and longitude.");
+  openFinder();
+  page = 0;
   lock(true);
   position = p;
   rows = [];
+  if (markers) markers.clearLayers();
+  updatePager();
   $("results").replaceChildren();
   $("results-footer").hidden = true;
   $("location-title").textContent = label;
@@ -219,6 +237,7 @@ async function search(p, label) {
   }
 }
 $("locate").addEventListener("click", () => {
+  openFinder();
   if (!navigator.geolocation) {
     message(
       "This browser does not support location. Enter coordinates below.",
@@ -313,4 +332,109 @@ if (document.modelContext?.registerTool) {
       }),
     ).catch(() => {});
   } catch {}
+}
+
+function openFinder() {
+  if (!$("finder").open) $("finder").showModal();
+  document.body.classList.add("finder-open");
+  if (view === "map" && rows.length) requestAnimationFrame(renderMap);
+}
+$("close-finder").addEventListener("click", () => $("finder").close());
+$("finder").addEventListener("close", () => {
+  document.body.classList.remove("finder-open");
+  $("reopen").hidden = !rows.length;
+});
+$("reopen").addEventListener("click", openFinder);
+$("close-place").addEventListener("click", () => $("place-dialog").close());
+function updatePager() {
+  $("next").textContent = `Next ${pageSize} →`;
+  $("previous").disabled = busy || page === 0;
+  $("next").disabled = busy || (page + 1) * pageSize >= rows.length;
+  $("page-label").textContent = rows.length
+    ? `${page + 1} / ${Math.ceil(rows.length / pageSize)}`
+    : "0 places";
+}
+$("next").addEventListener("click", () => {
+  if ((page + 1) * pageSize < rows.length) {
+    page++;
+    render();
+  }
+});
+$("previous").addEventListener("click", () => {
+  if (page > 0) {
+    page--;
+    render();
+  }
+});
+function setView(nextView) {
+  view = nextView;
+  $("results").hidden = view !== "list";
+  $("map-panel").hidden = view !== "map";
+  $("list-view").setAttribute("aria-pressed", String(view === "list"));
+  $("map-view").setAttribute("aria-pressed", String(view === "map"));
+  if (view === "map") requestAnimationFrame(renderMap);
+}
+$("list-view").addEventListener("click", () => setView("list"));
+$("map-view").addEventListener("click", () => setView("map"));
+function renderMap() {
+  if (!position || !rows.length) return;
+  if (!window.L) {
+    $("map-error").hidden = false;
+    return;
+  }
+  if (!map) {
+    map = L.map("map");
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    })
+      .on("tileerror", () => {
+        $("map-error").hidden = false;
+      })
+      .addTo(map);
+    markers = L.layerGroup().addTo(map);
+  }
+  map.invalidateSize();
+  markers.clearLayers();
+  const origin = [position.lat, position.lon];
+  L.circleMarker(origin, {
+    radius: 8,
+    color: "#fff",
+    weight: 3,
+    fillColor: "#2071d5",
+    fillOpacity: 1,
+  })
+    .addTo(markers)
+    .bindTooltip("Search location");
+  const bounds = [origin];
+  visibleRows().forEach((r, i) => {
+    const number = page * pageSize + i + 1;
+    const point = [r.lat, r.lon];
+    bounds.push(point);
+    const popup = el("div", "map-popup");
+    popup.append(
+      el("strong", "", r.name),
+      el("p", "", `${Math.round(r.meters)} m · ${r.direction.label}`),
+      link(
+        "Walking directions ↗",
+        directionsFor(r)[$("maps-app").value],
+        "",
+        false,
+      ),
+    );
+    L.marker(point, {
+      icon: L.divIcon({
+        className: "restroom-pin",
+        html: String(number),
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+      }),
+      title: `${number}. ${r.name}`,
+      alt: `${number}. ${r.name}`,
+    })
+      .addTo(markers)
+      .bindPopup(popup);
+  });
+  map.fitBounds(bounds, { padding: [30, 30], maxZoom: 17 });
 }
